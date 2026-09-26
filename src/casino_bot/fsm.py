@@ -14,3 +14,4 @@ class WithDrawFSM(StatesGroup):
 class GameAmountFSM(StatesGroup):
     waiting_amount = State()
     waiting_dice = State()
+    

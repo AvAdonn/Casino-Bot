@@ -91,3 +91,11 @@ You're back on the main screen. Choose an action below 👇
         )
     await callback.answer()
     
+    
+'''    
+@router.message(F.dice)
+async def test_dice(message: Message):
+    value = message.dice.value #type: ignore
+    await message.reply(f'{value}')
+    
+'''

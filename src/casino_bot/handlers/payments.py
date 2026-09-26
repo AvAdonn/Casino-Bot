@@ -561,7 +561,11 @@ async def clb_confirm_withdraw(
     method = data.get('method')
     amount = data.get('amount')
     card = data.get('card')
-
+    config = {
+        'card_ua': 'Card UA🇺🇦',
+        'card_eu': 'CARD EU🇪🇺'
+    }
+    
     if method is None or amount is None or card is None:
         await callback.answer('❌ Missing withdrawal data.', show_alert=True)
         return
@@ -587,7 +591,7 @@ async def clb_confirm_withdraw(
     text = f'''
 ⚠️ <b>New Withdrawal Request:</b> #{withdraw_id}
 
-💳 <b>Method:</b> {method}
+💳 <b>Method:</b> {config.get(method)}
 💵 <b>Amount:</b> ${amount}
 🏦 <b>Card:</b> <tg-spoiler>{card}</tg-spoiler>
 

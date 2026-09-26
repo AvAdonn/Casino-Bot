@@ -201,13 +201,4 @@ async def rate_check(
     except Exception as e:
         print(f'System error -> {e}')
         return 'Unknown'
-    
-async def add_game(
-    session: AsyncSession,
-    tg_id: int,
-    mode: str,
-    status: str,
-    amounts: str,
-    
-) -> None:
-    pass
+

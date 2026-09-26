@@ -224,7 +224,7 @@ count_game = InlineKeyboardMarkup(inline_keyboard=[
     ),
     InlineKeyboardButton(
         text='3️⃣ Rounds',
-        callback_data=CountGame(count=5).pack()
+        callback_data=CountGame(count=3).pack()
     )],
     [InlineKeyboardButton(
         text='🔟 Rounds',
