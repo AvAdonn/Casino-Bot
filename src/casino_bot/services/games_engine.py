@@ -13,6 +13,12 @@ bowling_score = {
     6: 6,
 }
 
+BIG_GAME_ROUNDS = {
+    1: '🎲',
+    2: '🎯',
+    3: '🏀'
+}
+
 win_set = {1, 22, 43, 64}
 
 async def start_game(
@@ -35,6 +41,7 @@ async def start_game(
             rounds=count
         )
         session.add(new_game)
+        user.total_played += amount
         
         await session.commit()
         return True
@@ -61,8 +68,10 @@ async def get_game(
         return
     
 def calculate_score(emoji: str, dice_value: int) -> int:
-    if emoji in ('🏀', '⚽️'):
+    if emoji in ('🏀'):
         return 1 if dice_value in (4, 5) else 0
+    elif emoji == '⚽️':
+        return 1 if dice_value in (3, 4, 5) else 0
     elif emoji == '🎳':
         return bowling_score.get(dice_value, 0)
     elif emoji == '🎯':
@@ -74,7 +83,12 @@ def calculate_score(emoji: str, dice_value: int) -> int:
     else:
         return 0
 
+def get_biggame_emoji(mode: str, current_round: int) -> str:
+    if mode == 'BigGame':
+        return BIG_GAME_ROUNDS.get(current_round, '🎲')
 
+    return mode
+    
 async def ending_game(
     game: Games,
     session: AsyncSession,    

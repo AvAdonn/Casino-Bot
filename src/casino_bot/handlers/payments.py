@@ -24,14 +24,18 @@ PAYMENT_CONFIG = {
     'card_eu': {'requisites': '<code>EU148867676767</code>', 'rate': Decimal('0.92'), 'currency': '€'},
 }
 
+PAYMENT_ICON = {
+    'card_ua': 'Ukraine Card🇺🇦',
+    'card_eu': 'Europe Card🇪🇺'
+}
 
 @router.message(F.text == '💰 My Wallet')
 async def f_gamanec(message: Message, user_in_db: User):
     text = f'''
 ✅<b>Status:</b> <i>Verified</i>
-💰<b>Current Balance:</b> {user_in_db.balance}$
+💰Current Balance: <b>{user_in_db.balance}$</b>
 
-<i>Select an option 👇</i>
+<i>Choose your move 👇</i>
     '''
     await message.delete()
     await message.answer_photo(
@@ -48,7 +52,7 @@ async def clb_back_to_wallet(callback: CallbackQuery, user_in_db: User):
 ✅<b>Status:</b> <i>Verified</i>
 💰<b>Current Balance:</b> {user_in_db.balance}$
 
-<i>Select an option 👇</i>
+<i>Choose your move 👇</i>
     '''
     if isinstance(callback.message, Message):
         await callback.message.delete()
@@ -65,7 +69,7 @@ async def clb_back_to_wallet(callback: CallbackQuery, user_in_db: User):
 async def clb_pay(callback: CallbackQuery, state: FSMContext):
     await state.clear()
     text = '''
-💳 Select payment method:
+💳 How would you like to top up? 👇
     '''
     if isinstance(callback.message, Message):
         await callback.message.delete()
@@ -95,7 +99,7 @@ async def clb_payments_fab(callback: CallbackQuery, callback_data: Payments, sta
     markup = None
     
     text = f'''
-💳 <b>Method:</b> {config['name']}
+💳 Method: <b>{config['name']}</b>
 '''
     if method == 'stars':
         markup = inl.pay_stars
@@ -114,7 +118,7 @@ async def clb_payments_fab(callback: CallbackQuery, callback_data: Payments, sta
 async def clb_back_fab(callback: CallbackQuery, user_in_db: User):
     text = f'''
 ✅<b>Status:</b> <i>Verified</i>
-💰<b>Current Balance:</b> {user_in_db.balance}$
+💰Current Balance: <b>{user_in_db.balance}$</b>
 
 <i>Select an option 👇</i>
     '''
@@ -140,7 +144,7 @@ async def clb_pay_stars_fab(callback: CallbackQuery, callback_data: Payments, st
         await state.set_state(PaymentFSM.waiting_sum)
         if isinstance(callback.message, Message):
             text = '''
-💳 <b>Method:</b> Telegram Stars ⭐️
+💳 Method: <b>Telegram Stars ⭐️</b>
 ⌨️ Enter deposit amount in Telegram Stars ⭐️:
 
 <i>Min. amount: 1 </i>⭐️
@@ -190,7 +194,7 @@ async def f_successful_payment(message: Message, session: AsyncSession, user_in_
     text = f'''
 ✅ <b>Payment Successful!</b>
 
-<b>Converted:</b> {total_stars}⭐ ➔ ${usd_bal}
+Converted: <b>{total_stars}⭐ ➔ {usd_bal}$</b>
 <i>Rate: 1⭐ = $0.018</i>
 
 💰 <b>Current Balance:</b> ${user_in_db.balance}
@@ -206,7 +210,7 @@ async def fsm_waiting_sum(message: Message, state: FSMContext, ):
     pay_method = data.get('pay_method')
     
     if not pay_method:
-        await message.answer('Payment error, try again, please...')
+        await message.answer('⚠️Payment error, try again, please...')
         await state.clear()
         return
     
@@ -214,7 +218,7 @@ async def fsm_waiting_sum(message: Message, state: FSMContext, ):
     amount = 0
     
     if not pay_sum:
-        await message.answer('❌ Please enter a valid whole number!')
+        await message.answer('💡 Whole numbers only, please 👇')
         return
         
     if pay_method == 'stars':
@@ -223,7 +227,7 @@ async def fsm_waiting_sum(message: Message, state: FSMContext, ):
             if amount <= 0:
                 raise ValueError
         except ValueError:
-            await message.answer('❌ Please enter a valid whole number!')
+            await message.answer('💡 Whole numbers only, please 👇')
             return 
     else:
         try:
@@ -263,8 +267,8 @@ async def fsm_waiting_sum(message: Message, state: FSMContext, ):
         text = f'''
 🧾 <b>Invoice Created!</b>
 
-💳 <b>Method:</b> <i>{pay_method}</i>
-💵 <b>Amount Due:</b> ${amount} ➔ {local_amount} {config['currency']}
+💳 Method: <b>{PAYMENT_ICON.get(pay_method)}</b>
+💵 Amount Due: <b>{amount}$ ➔ {local_amount} {config['currency']}</b>
 🏦 <b>Details:</b> <code>{config['requisites']}</code>
 
 ⚠️ <i>Important: Please send a screenshot of your payment receipt in this chat!</i>
@@ -325,7 +329,7 @@ async def fsm_waiting_receipt(message: Message, state: FSMContext, bot: Bot, gro
     )
     
     await state.clear()
-    await message.answer('⏳ Your payment is being processed. Please wait for the funds to be credited.')
+    await message.answer('⏳ <b>Payment Processing...</b><blockquote>We are currently verifying your transaction. Funds are usually credited within a few minutes. We\'ll notify you right here once it\'s done!</blockquote>', parse_mode='HTML')
     
     
 @router.callback_query(AdminReceipt.filter(F.action == 'approve'))
@@ -423,7 +427,7 @@ async def admin_lst(message: Message, session: AsyncSession, user_in_db: User):
 async def clb_prewithdraw(callback: CallbackQuery, state: FSMContext):
     await state.clear()
     text = '''
-💳 Select withdraw method:
+💳 Choose a withdrawal method 👇
     '''
     if isinstance(callback.message, Message):
         await callback.message.delete()
@@ -450,8 +454,8 @@ async def clb_withdraw(callback: CallbackQuery, callback_data: Withdraw, state: 
     
     await state.set_state(WithDrawFSM.waiting_sum)
     text = f'''
-💳 <b>Method:</b> {config['name']}
-💰 <b>Balance:</b> {user_in_db.balance}$
+💳 Method: <b>{config['name']}</b>
+💰 Balance: <b>{user_in_db.balance}$</b>
 ⌨️ Enter withdraw amount in USD($):
 
 <i>Min. amount: 1$</i>
@@ -528,8 +532,8 @@ async def withdraw_waiting_card(message: Message, state: FSMContext):
     text = f'''
 📝 <b>Withdrawal Request</b>
 
-💳 <b>Method:</b> {config.get(method)}
-💵 <b>Amount:</b> ${amount}
+💳 Method: <b>{config.get(method)}</b>
+💵 Amount: <b>{amount}$</b>
 🏦 <b>Card:</b> <tg-spoiler>{card}</tg-spoiler>
 
 👇<i>Please confirm your withdrawal below</i>
@@ -591,8 +595,8 @@ async def clb_confirm_withdraw(
     text = f'''
 ⚠️ <b>New Withdrawal Request:</b> #{withdraw_id}
 
-💳 <b>Method:</b> {config.get(method)}
-💵 <b>Amount:</b> ${amount}
+💳 Method: <b>{config.get(method)}</b>
+💵 Amount: <b>{amount}$</b>
 🏦 <b>Card:</b> <tg-spoiler>{card}</tg-spoiler>
 
 👇 <i>Select action:</i>
@@ -659,10 +663,10 @@ async def clb_withdrawadmin_conf(
     
     if status:
         admin_status = "✅ <b>Processed Successfully</b>"
-        user_notify_text = '✅ <b>Withdrawal Approved!</b>\nPlease expect the funds to arrive within 1-2 hours.'
+        user_notify_text = '✅ <b>Withdrawal Approved!</b><blockquote>Please expect the funds to arrive within 1-2 hours.</blockquote>'
     else:
         admin_status = "❌ <b>Rejected</b>"
-        user_notify_text = '❌ <b>Withdrawal Rejected.</b>\nFunds have been returned to your balance. If you believe this is an error, please contact support.'
+        user_notify_text = '❌ <b>Withdrawal Rejected.</b><blockquote>Funds have been returned to your balance. If you believe this is an error, please contact support.</blockquote>'
     
     if isinstance(callback.message, Message):
         raw_text = callback.message.html_text

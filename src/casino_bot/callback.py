@@ -30,3 +30,8 @@ class CountGame(CallbackData, prefix='count_game'):
 class GameAmount(CallbackData, prefix='amount'):
     amount: int | None 
     
+class GameAgain(CallbackData, prefix='again'):
+    amount: str
+    mode: str
+    rounds: int
+    

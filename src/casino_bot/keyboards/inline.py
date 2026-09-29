@@ -1,5 +1,8 @@
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from aiogram.utils.keyboard import InlineKeyboardBuilder  # noqa: F401
+from src.casino_bot.services.games_engine import get_biggame_emoji
+
+from src.casino_bot.database.models import Games
 
 from src.casino_bot.callback import (
     AdminReceipt,
@@ -9,6 +12,7 @@ from src.casino_bot.callback import (
     WithdrawAdmin,
     GameAmount,
     CountGame,
+    GameAgain
 )
 
 back_menu = InlineKeyboardMarkup(inline_keyboard=[
@@ -263,6 +267,24 @@ game_amount = InlineKeyboardMarkup(inline_keyboard=[
     )],
 ])
 
+def get_amount_keyboard(mode: str) -> InlineKeyboardMarkup:
+    builder = InlineKeyboardBuilder()
+    
+    builder.button(text='1 $', callback_data=GameAmount(amount=1).pack())
+    builder.button(text='3 $', callback_data=GameAmount(amount=3).pack())
+    builder.button(text='5 $', callback_data=GameAmount(amount=5).pack())
+    builder.button(text='10 $', callback_data=GameAmount(amount=10).pack())
+    builder.button(text='Other amount💸', callback_data='other_amount')
+
+    if mode == 'BigGame':
+        back_callback = 'back_to_mode'
+    else:
+        back_callback = 'back_to_rounds'
+        
+    builder.button(text='Back ⬅️', callback_data=back_callback)
+    builder.adjust(2, 2, 1, 1)
+    
+    return builder.as_markup()
 
 cancel_amount = InlineKeyboardMarkup(inline_keyboard=[
     [InlineKeyboardButton(
@@ -270,3 +292,23 @@ cancel_amount = InlineKeyboardMarkup(inline_keyboard=[
             callback_data='back_to_mode'
         )]
 ])
+
+def play_again(
+    mode: str,
+    rounds: int,
+    amount: str,
+    game: Games
+) -> InlineKeyboardMarkup:
+    
+    builder = InlineKeyboardBuilder()
+    
+    builder.button(
+        text='Play Again 🔄',
+        callback_data=GameAgain(
+            amount=amount,
+            mode=game.mode,
+            rounds=rounds
+        ).pack()
+    )
+    
+    return builder.as_markup()

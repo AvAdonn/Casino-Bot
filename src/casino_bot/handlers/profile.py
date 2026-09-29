@@ -21,9 +21,9 @@ async def f_profile(message: Message, user_in_db: User, session: AsyncSession):
     text = f'''
 👤 <b>{user_in_db.role.upper()}</b> | <code>{user_in_db.tg_id}</code>
 
-💰 <b>Balance:</b> ${user_in_db.balance}
-👥 <b>Referrals:</b> {refferal}.
-📈 <b>WinRate:</b> {win_rate}%
+💰 Balance: <b>{user_in_db.balance}$</b>
+👥 Referrals: <b>{refferal} -> +10%</b>
+📈 WinRate: <b>{win_rate}%</b>
 
 <blockquote>🎮 <b>Total Played:</b> {user_in_db.total_played}$               ㅤ
 🟢 <b>Win:</b> {user_in_db.win}  •  🔴 <b>Loss:</b> {user_in_db.lose}</blockquote>

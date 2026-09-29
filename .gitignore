@@ -2,8 +2,11 @@ venv/
 .venv/
 env/
 
+src.casino_bot.find_cyrillic.py
+
 .env
 *.db
 __pycache__
 
 .vscode
+

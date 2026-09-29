@@ -26,7 +26,7 @@ class AuthMiddleware(BaseMiddleware):
                 return await handler(event, data)
             
             if isinstance(event, (Message, CallbackQuery)):
-                await event.answer('⚠️ Варто зареєструватись!\n\nНатисни /start')
+                await event.answer('👤 Registration required!\n\nPress /start to continue.')
             
             return
         

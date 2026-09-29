@@ -1,9 +1,11 @@
+from typing import Any, Awaitable, Callable, Dict
+
 from aiogram import BaseMiddleware
-from aiogram.types import TelegramObject
-from typing import Callable, Dict, Any, Awaitable
-from src.casino_bot.database.engine import async_session
 from aiogram.fsm.context import FSMContext
-from aiogram.types import Message
+from aiogram.types import Message, TelegramObject
+
+from src.casino_bot.database.engine import async_session
+
 
 class BDSession(BaseMiddleware):
     async def __call__(

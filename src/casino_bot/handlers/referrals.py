@@ -62,4 +62,4 @@ Build your team in advance to maximize your profit on release day!</blockquote>
         reply_markup=builder.as_markup()
         )
     else:
-        await message.answer('Варто зареєструватись)')
+        await message.answer('Please register first.')

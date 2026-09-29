@@ -191,7 +191,7 @@ async def rate_check(
             return 0
 
         
-        total_games = user.lose + user.lose
+        total_games = user.lose + user.win
         if total_games == 0:
             return 0
         
